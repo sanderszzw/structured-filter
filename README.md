@@ -10,7 +10,7 @@ It is a full jQuery UI widget, supporting various configurations and themes.
 
 Check the [demo](http://evoluteur.github.com/structured-filter/index.html) for a live example.
 
-![screenshot 1](https://raw.github.com/evoluteur/structured-filter/master/screenshot-advsrc-1.png)
+![screenshot 1](https://raw.github.com/evoluteur/structured-filter/master/screenshot1.png)
 
 ## Model
 
@@ -47,14 +47,14 @@ fields = [
 
 ### Conditions
 
-Search queries are a set of conditions.
+Queries are expressed as a set of conditions.
 
 Each condition is defined by:
 - a field
 - an operator
 - one or several values
 
-For each field the possible operators are determined it's type.
+For each field the possible operators are determined by it's type.
 
 boolean:
 
@@ -159,7 +159,7 @@ structured-filter provides several options to customize its behaviour:
 
 ### buttonLabels (Boolean)
 
-The labels of buttons used to manipulate filters. This options applies to the 3 buttons "New filter", "Add filter"/"Update filter", and "Cancel" which use icons if the option is set to false.
+The labels of buttons used to manipulate filters. This options applies to the 3 buttons, "New filter", "Add filter"/"Update filter" and "Cancel" which use icons if the option is set to false.
 
 ```javascript
 $("#myFilter").structFilter({
@@ -224,7 +224,7 @@ Defaults to *true*.
 
 ### submitButton (Boolean)
 
-Shows or hide the "Submit" button.
+Shows or hides the "Submit" button.
 
 ```javascript
 $("#myFilter").structFilter({
@@ -236,7 +236,7 @@ Defaults to *false*.
 
 ### submitReady (Boolean)
 
-Provides hidden fields with the filters values to be submitted with the form (as an alternative to an AJAX call).
+Provides hidden fields with the conditions' values to be submitted with the form (as an alternative to an AJAX call).
 
 ```javascript
 $("#myFilter").structFilter({
@@ -250,7 +250,7 @@ Defaults to *false*.
 ## Methods
 
 ### addCondition(data)
-Add a new filter.
+Adds a new filter condition.
 
 ```javascript
 $("#myFilter").structFilter("addCondition", {
@@ -270,28 +270,28 @@ $("#myFilter").structFilter("addCondition", {
 ```
 
 ### clear()
-Remove all search filters.
+Removes all search filters.
 
 ```javascript
 $("#myFilter").structFilter("clear");
 ```
 
 ### length()
-Get the number of filters.
+Gets the number of filters.
 
 ```javascript
 $("#myFilter").structFilter("length");
 ```
 
 ### removeCondition(index)
-Remove the filter of the specified index.
+Removes the condition of the specified index.
 
 ```javascript
 $("#myFilter").structFilter("removeCondition", 0);
 ```
 
 ### val([data])
-Get or set the search definition (as an array of filters).
+Gets or sets the filter definition (as an array of filters).
 
 ```javascript
 $("#myFilter").structFilter("val");
@@ -304,24 +304,24 @@ Sample value:
 ```javascript
 [
     {
-        "field":{
-            "label": "Lastname",
-            "value": "Lastname"
+        field:{
+            label: "Lastname",
+            value: "Lastname"
         },
-        "operator":{
-            "label": "starts with",
-            "value": "sw"
+        operator:{
+            label: "starts with",
+            value: "sw"
         },
-        "value":{
-            "label": "\"jo\"",
-            "value": "jo"
+        value:{
+            label: "\"jo\"",
+            value: "jo"
         }
     }
 ]
 ```
 
 ### valText()
-Get the search definition (as a readable text string).
+Gets the filter definition (as a readable text string).
 
 ```javascript
 $("#myFilter").structFilter("valText");
@@ -332,7 +332,7 @@ Sample value:
     Lastname starts with "jo"
 
 ### valUrl()
-Get the search definition (as a URL string).
+Gets the filter definition (as a URL string).
 
 ```javascript
 $("#myFilter").structFilter("valUrl");
@@ -373,7 +373,7 @@ There is another implementation of structured-filter using [Bootstrap](http://ge
 
 ## License
 
-Copyright (c) 2014 Olivier Giulieri.
+Copyright (c) 2015 Olivier Giulieri.
 
 structured-filter is released under the [MIT license](http://github.com/evoluteur/structured-filter/raw/master/LICENSE.md).
 
