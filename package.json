@@ -1,6 +1,6 @@
 {
   "name": "structured-filter",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "copyright": "(c) 2015 Olivier Giulieri",
   "homepage": "https://github.com/evoluteur/structured-filter",
   "license": "MIT",
@@ -19,18 +19,20 @@
     "url": "https://github.com/evoluteur/structured-filter/issues"
   },
   "dependencies": {
-    "jquery": "~1.7.0",
-    "jquery-ui": "~1.8.0"
+    "jquery": "~2.1.4",
+    "jquery-ui": "~1.11.4"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.4.3",
-    "grunt-contrib-uglify": "~0.2.1"
+    "grunt": "~0.4.5",
+    "grunt-contrib-jshint": "~0.11.0",
+    "grunt-contrib-uglify": "~0.7.0",
+    "grunt-contrib-less": "~1.0.0"
   },
   "keywords": [
     "filter",
     "query",
     "editor",
+    "search",
     "form",
     "widget",
     "jquery",
