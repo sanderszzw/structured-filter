@@ -183,7 +183,7 @@ Defaults to *false*.
 
 ### dateFormat (String)
 
-The format for parsed and displayed dates. This attribute is one of the regionalisation attributes. 
+The format for parsed and displayed dates. This attribute is one of the regionalisation attributes.
 Common formats are: Default - "mm/dd/yy", ISO 8601 - "yy-mm-dd", Short - "d M, y", Medium - "d MM, y", Full - "DD, d MM, yy". For a full list of the possible formats see the [jQuery formatDate function](http://docs.jquery.com/UI/Datepicker/formatDate).
 
 ```javascript
@@ -240,7 +240,7 @@ Shows or hides the "Submit" button.
 
 ```javascript
 $("#myFilter").structFilter({
-    submitReady: true
+    submitButton: true
 });
 ```
 
@@ -381,7 +381,8 @@ $("#myFilter").on("submit.search", function(event){
 
 structured-filter is as easily themeable as any jQuery UI widget, using one of the [jQuery UI themes](http://jqueryui.com/themeroller/#themeGallery) or your own custom theme made with [Themeroller](http://jqueryui.com/themeroller/).
 
-There is another implementation of structured-filter using [Bootstrap](http://getbootstrap.com/) and [Backbone](http://backbonejs.org/) as part of [Evolutility](http://evoluteur.github.com/evolutility/index.html) set of metadata-driven Backbone views.
+There is another implementation of structured-filter using [Bootstrap](http://getbootstrap.com/) and [Backbone.js](http://backbonejs.org/) as part of [Evolutility](http://evoluteur.github.com/evolutility/index.html) set of metadata-driven Backbone views.
+
 
 ## License
 
