@@ -7,7 +7,8 @@ module.exports = function (grunt) {
         // *************************************************************************************
 
         pkg: grunt.file.readJSON('package.json'),
-        banner :  '/*\n   <%= pkg.name %> <%= pkg.version %>\n   <%= pkg.copyright %>\n   <%= pkg.homepage %>\n*/\n',
+
+        banner :  '/*\n   <%= pkg.name %> <%= pkg.version %>\n   <%= pkg.homepage %>\n   <%= pkg.copyright %>\n*/\n',
 
         // *************************************************************************************
         //      JSHINT options
@@ -40,6 +41,9 @@ module.exports = function (grunt) {
         // *************************************************************************************
         less: {
             dev: {
+                options: {
+                    banner: '<%= banner %>'
+                },
                 files: {
                     "css/structured-filter.css": "less/structured-filter.less"
                 }
@@ -54,6 +58,18 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
 
 // Custom tasks
+    grunt.registerTask('header', '', function(arg1) {
+        var pkg=grunt.file.readJSON('package.json');
+        console.log(
+            (new Date()).toString() + '\n' + 
+            '     _                   _                      _      __ _ _ _\n'+
+            ' ___| |_ _ __ _   _  ___| |_ _   _ _ __ ___  __| |    / _(_) | |_ ___ _ __\n'+
+            '/ __| __| \'__| | | |/ __| __| | | | \'__/ _ \\/ _` |___| |_| | | __/ _ \\ \'__|\n'+
+            '\\__ \\ |_| |  | |_| | (__| |_| |_| | | |  __/ (_| |___|  _| | | ||  __/ |\n'+
+            '|___/\\__|_|   \\__,_|\\___|\\__|\\__,_|_|  \\___|\\__,_|   |_| |_|_|\\__\\___|_|\n'+
+            arg1 + ' '+ pkg.version
+         );
+    });
 
     // *************************************************************************************
     //      BUILD TASKS : dev prod
@@ -62,10 +78,10 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['prod']);
 
     // Dev only task(s).
-    grunt.registerTask('dev', ['less:dev']);
+    grunt.registerTask('dev', ['header:dev', 'less:dev']);
 
     // Prod only task(s).
-    grunt.registerTask('prod', ['jshint', 'less', 'uglify']);
+    grunt.registerTask('prod', ['header:prod', 'jshint', 'less', 'uglify']);
 
 };
 
