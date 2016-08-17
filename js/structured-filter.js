@@ -1,5 +1,5 @@
 ﻿/*!
- * structured-filter 1.0.9
+ * structured-filter 1.0.11
  *
  * Copyright (c) 2016, Olivier Giulieri
  *
@@ -636,7 +636,7 @@ var EvoUI={
 	},
 	inputCheckboxes:function(fLOV){
 		var h='';
-		for(var i in fLOV){
+		for(var i=0;i<fLOV.length;i++){
 			var lv=fLOV[i];
 			h+='<input type="checkbox" id="'+lv.id+'" value="'+lv.id+'"/>'+
 				'<label for="'+lv.id+'">'+lv.label+'</label> ';
