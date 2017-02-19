@@ -1,7 +1,7 @@
 ﻿/*!
- * structured-filter 1.0.11
+ * structured-filter 1.1.0
  *
- * Copyright (c) 2016, Olivier Giulieri
+ * (c) 2017 Olivier Giulieri
  *
  * https://github.com/evoluteur/structured-filter
  *
@@ -14,7 +14,20 @@
 
 (function( $, undefined){
 
-	var evoLang={
+	// - field types
+	var fTypes={
+		text:'text',
+		bool:'boolean',
+		number:'number',
+		date:'date',
+		time:'time',
+		list:'list',
+		listOpts: 'list-options',
+		listDropdown: 'list-dropdown'
+	},
+
+	// - i18n strings (to translate in other languages)
+	i18n={
 		sEqual:'equals',
 		sNotEqual:'not equal',
 		sStart:'starts with',
@@ -45,6 +58,8 @@
 		bSubmit:'Submit',
 		bCancel:'Cancel'
 	},
+
+	// - list of operators (for conditions)
 	evoAPI={
 		sEqual:'eq',
 		sNotEqual:'ne',
@@ -58,14 +73,6 @@
 		sGreater:'gt',
 		sSmaller:'lt',
 		sBetween:'bw'
-	},
-	fTypes={
-		text:'text',
-		bool:'boolean',
-		number:'number',
-		date:'date',
-		time:'time',
-		list:'list'
 	},
 	isNotFirefox = navigator.userAgent.toLowerCase().indexOf('firefox')===-1;
 
@@ -84,14 +91,18 @@ $.widget( 'evol.structFilter', {
 		var bLabels=this.options.buttonLabels,
 			that=this,
 			e=this.element,
+			fnLink=function(css, label, hidden){
+				return '<a class="'+css+'"'+(hidden?' style="display:none;"':'')+
+					' href="javascript:void(0)">'+label+'</a>';
+			},
 			h='<div class="evo-searchFilters"></div>'+
-				'<a class="evo-bNew" href="javascript:void(0)">'+evoLang.bNewCond+'</a>';
+				fnLink('evo-bNew', i18n.bNewCond);
 		if(this.options.submitButton){
-			h+='<a class="evo-bSubmit" href="javascript:void(0)">'+evoLang.bSubmit+'</a>';
+			h+=fnLink('evo-bSubmit', i18n.bSubmit);
 		}
 		h+='<div class="evo-editFilter"></div>'+
-				'<a class="evo-bAdd" style="display:none;" href="javascript:void(0)">'+evoLang.bAddCond+'</a>'+
-				'<a class="evo-bDel" style="display:none;" href="javascript:void(0)">'+evoLang.bCancel+'</a>';
+				fnLink('evo-bAdd', i18n.bAddCond, true)+
+				fnLink('evo-bDel', i18n.bCancel, true);
 		this._step=0;
 		e.addClass('structFilter ui-widget-content ui-corner-all')
 			.html(h);
@@ -115,7 +126,7 @@ $.widget( 'evol.structFilter', {
 					that._setEditorField();
 					that._step=1;
 				}
-				that._bAdd.find('.ui-button-text').html(evoLang.bAddCond);
+				that._bAdd.find('.ui-button-text').html(i18n.bAddCond);
 			});
 		// - editor button add
 		this._bAdd=e.find('.evo-bAdd').button({
@@ -153,7 +164,7 @@ $.widget( 'evol.structFilter', {
 				that._field=that._getFieldById(fieldID);
 				var fType=that._type=that._field.type;
 				that._setEditorOperator();
-				if(fType==fTypes.list || fType==fTypes.bool){
+				if(fType===fTypes.bool || fType.startsWith('list')){
 					that._setEditorValue();
 				}
 			}else{
@@ -170,10 +181,10 @@ $.widget( 'evol.structFilter', {
 			that._setEditorValue();
 		}).on('change keyup', '#value,#value2', function(evt){
 			evt.stopPropagation();
-			var type=that._type,
+			var fType=that._type,
 				value=$(this).val(),
-				valid=(value!=='') || type==fTypes.list || type==fTypes.bool;
-			if(type==fTypes.number){
+				valid= value!=='' || fType===fTypes.bool || fType.startsWith('list');
+			if(fType==fTypes.number){
 				valid=valid && !isNaN(value);
 			}else if(that._operator==evoAPI.sBetween){
 				valid=that._editor.find('#value').val()!=='' && that._editor.find('#value2').val()!=='';
@@ -262,7 +273,7 @@ $.widget( 'evol.structFilter', {
 			'<span class="evo-lLight">'+filter.operator.label+'</span> '+
 			'<span class="evo-lBold">'+filter.value.label+'</span>';
 		if(filter.operator.value==evoAPI.sBetween){
-			h+='<span class="evo-lLight"> '+evoLang.opAnd+' </span>'+
+			h+='<span class="evo-lLight"> '+i18n.opAnd+' </span>'+
 				'<span class="evo-lBold">'+filter.value.label2+'</span>';
 		}
 		return h;
@@ -300,7 +311,7 @@ $.widget( 'evol.structFilter', {
 		}else{
 			this._setEditorValue(fv.value);
 		}
-		this._bAdd.find('.ui-button-text').html(evoLang.bUpdateCond);
+		this._bAdd.find('.ui-button-text').html(i18n.bUpdateCond);
 		this._step=3;
 	},
 
@@ -312,12 +323,10 @@ $.widget( 'evol.structFilter', {
 			}
 			this._bDel.show();
 			if(!this._fList){
-				var fields=this.options.fields,
-					h='<select id="field"><option value=""></option>';
-				for (var i=0,iMax=fields.length;i<iMax;i++){
-					var f=fields[i];
-					h+=EvoUI.inputOption(f.id,f.label);
-				}
+				var h='<select id="field">'+EvoUI.optNull;
+				h+=this.options.fields.map(function(f){
+					return EvoUI.inputOption(f.id,f.label);
+				});
 				h+='</select>';
 				this._fList=h;
 			}
@@ -334,50 +343,53 @@ $.widget( 'evol.structFilter', {
 	_setEditorOperator: function(cond){
 		var fType=this._type;
 		if(this._step<2){
-			var h='';
+			var h='',
+				opt=EvoUI.inputOption;
 			switch (fType){
 				case fTypes.list:
-					//h.push(evoLang.sInList);
+					//h.push(i18n.sInList);
 					h+=EvoUI.inputHidden('operator',evoAPI.sInList);
 					this._operator=evoAPI.sInList;
 					break;
+				case fTypes.listOpts:
+				case fTypes.listDropdown:
 				case fTypes.bool:
-					//h.push(evoLang.sEqual);
+					//h.push(i18n.sEqual);
 					h+=EvoUI.inputHidden('operator',evoAPI.sEqual);
 					this._operator=evoAPI.sEqual;
 					break;
 				default:
-					h+='<select id="operator"><option value=""></option>';
+					h+='<select id="operator">'+EvoUI.optNull;
 					switch (fType){
 						case fTypes.date:
 						case fTypes.time:
 							if (fType==fTypes.time){
-								h+=EvoUI.inputOption(evoAPI.sEqual, evoLang.sAt)+
-									EvoUI.inputOption(evoAPI.sNotEqual, evoLang.sNotAt);
+								h+=opt(evoAPI.sEqual, i18n.sAt)+
+									opt(evoAPI.sNotEqual, i18n.sNotAt);
 							}else{
-								h+=EvoUI.inputOption(evoAPI.sEqual, evoLang.sOn)+
-									EvoUI.inputOption(evoAPI.sNotEqual, evoLang.sNotOn);
+								h+=opt(evoAPI.sEqual, i18n.sOn)+
+									opt(evoAPI.sNotEqual, i18n.sNotOn);
 							}
-							h+=EvoUI.inputOption(evoAPI.sGreater, evoLang.sAfter)+
-								EvoUI.inputOption(evoAPI.sSmaller, evoLang.sBefore)+
-								EvoUI.inputOption(evoAPI.sBetween, evoLang.sBetween);
+							h+=opt(evoAPI.sGreater, i18n.sAfter)+
+								opt(evoAPI.sSmaller, i18n.sBefore)+
+								opt(evoAPI.sBetween, i18n.sBetween);
 							break;
 						case fTypes.number:
-							h+=EvoUI.inputOption(evoAPI.sEqual, evoLang.sNumEqual)+
-								EvoUI.inputOption(evoAPI.sNotEqual, evoLang.sNumNotEqual)+
-								EvoUI.inputOption(evoAPI.sGreater, evoLang.sGreater)+
-								EvoUI.inputOption(evoAPI.sSmaller, evoLang.sSmaller);
+							h+=opt(evoAPI.sEqual, i18n.sNumEqual)+
+								opt(evoAPI.sNotEqual, i18n.sNumNotEqual)+
+								opt(evoAPI.sGreater, i18n.sGreater)+
+								opt(evoAPI.sSmaller, i18n.sSmaller);
 							break;
 						default:
-							h+=EvoUI.inputOption(evoAPI.sEqual, evoLang.sEqual)+
-								EvoUI.inputOption(evoAPI.sNotEqual, evoLang.sNotEqual)+
-								EvoUI.inputOption(evoAPI.sStart, evoLang.sStart)+
-								EvoUI.inputOption(evoAPI.sContain, evoLang.sContain)+
-								EvoUI.inputOption(evoAPI.sNotContain, evoLang.sNotContain)+
-								EvoUI.inputOption(evoAPI.sFinish, evoLang.sFinish);
+							h+=opt(evoAPI.sEqual, i18n.sEqual)+
+								opt(evoAPI.sNotEqual, i18n.sNotEqual)+
+								opt(evoAPI.sStart, i18n.sStart)+
+								opt(evoAPI.sContain, i18n.sContain)+
+								opt(evoAPI.sNotContain, i18n.sNotContain)+
+								opt(evoAPI.sFinish, i18n.sFinish);
 					}
-					h+=EvoUI.inputOption(evoAPI.sIsNull, evoLang.sIsNull)+
-						EvoUI.inputOption(evoAPI.sIsNotNull, evoLang.sIsNotNull)+
+					h+=opt(evoAPI.sIsNull, i18n.sIsNull)+
+						opt(evoAPI.sIsNotNull, i18n.sIsNotNull)+
 						'</select>';
 			}
 			this._editor.append(h);
@@ -391,6 +403,7 @@ $.widget( 'evol.structFilter', {
 
 	_setEditorValue: function( v, v2){
 		var editor=this._editor,
+			fld = this._field,
 			fType=this._type,
 			opVal=editor.find('#operator').val(),
 			opBetween=false,
@@ -403,17 +416,31 @@ $.widget( 'evol.structFilter', {
 					var h='';
 					opBetween=opVal==evoAPI.sBetween;
 					switch (fType){
-						case fTypes.list:
-							h+='<span id="value">'+
-								((this._field.list.length>7)?'(<input type="checkbox" id="checkAll" value="1"/><label for="checkAll">All</label>) ':'')+
-								EvoUI.inputCheckboxes(this._field.list)+
-								'</span>';
-							break;
 						case fTypes.bool:
 							h+='<span id="value">'+
-								EvoUI.inputRadio('value', '1', evoLang.yes, v!='0', 'value1')+
-								EvoUI.inputRadio('value', '0', evoLang.no, v=='0', 'value0')+
+								EvoUI.inputRadio('value', '1', i18n.yes, v!='0', 'value1')+
+								EvoUI.inputRadio('value', '0', i18n.no, v=='0', 'value0')+
 								'</span>';
+							break;
+						case fTypes.list:
+							h+='<span id="value">'+
+								((fld.list.length>7)?'(<input type="checkbox" id="checkAll" value="1"/><label for="checkAll">All</label>) ':'')+
+								EvoUI.inputCheckboxes(fld.list)+
+								'</span>';
+							break;
+						case fTypes.listOpts:
+							h+='<span id="value">';
+							h+=fld.list.map(function(item){
+								return EvoUI.inputRadio(fld.id, item.id, item.label, v==item.id, 'value' + item.id);
+							}).join('');
+							h +='</span>';
+							break;
+						case fTypes.listDropdown:
+							h+='<select id="value">'+EvoUI.optNull;
+							h+=fld.list.map(function(item){
+								return EvoUI.inputOption(item.id, item.label);
+							}).join('');
+							h+='</select>';
 							break;
 						case fTypes.date:
 						case fTypes.time:
@@ -421,7 +448,7 @@ $.widget( 'evol.structFilter', {
 							var iType=(fType==fTypes.date)?'text':fType;
 							h+='<input id="value" type="'+iType+'"/>';
 							if(opBetween){
-								h+='<span class="as-Txt">'+evoLang.opAnd+' </span>'+
+								h+='<span class="as-Txt">'+i18n.opAnd+' </span>'+
 									'<input id="value2" type="'+iType+'"/>';
 							}
 							addOK=false;
@@ -441,6 +468,7 @@ $.widget( 'evol.structFilter', {
 						case fTypes.list:
 							$value.find('#'+v.split(',').join(',#')).prop('checked', 'checked');
 							break;
+						case fTypes.listOpts:
 						case fTypes.bool:
 							$value.find('#value'+v).prop('checked', 'checked');
 							break;
@@ -453,7 +481,7 @@ $.widget( 'evol.structFilter', {
 							}
 					}
 				}else{
-					addOK=(fType==fTypes.list || fType==fTypes.bool);
+					addOK=(fType==fTypes.list || fType==fTypes.listDropdown || fType==fTypes.bool);
 				}
 			}
 			this._bAdd.button(addOK?'enable':'disable').show();
@@ -482,26 +510,38 @@ $.widget( 'evol.structFilter', {
 				ls.push(this.nextSibling.innerHTML);
 			});
 			if(vs.length===0){
-				op.label=evoLang.sIsNull;
+				op.label=i18n.sIsNull;
 				op.value=evoAPI.sIsNull;
 				fv.label=fv.value='';
 			}else if(vs.length==1){
-				op.label=evoLang.sEqual;
+				op.label=i18n.sEqual;
 				op.value=evoAPI.sEqual;
 				fv.label='"'+ls[0]+'"';
 				fv.value=vs[0];
 			}else{
-				op.label=evoLang.sInList;
+				op.label=i18n.sInList;
 				op.value=evoAPI.sInList;
 				fv.label='('+ls.join(', ')+')';
 				fv.value=vs.join(',');
 			}
 		}else if(this._type==fTypes.bool){
-			op.label=evoLang.sEqual;
+			op.label=i18n.sEqual;
 			op.value=evoAPI.sEqual;
 			var val=(v.find('#value1').prop('checked'))?1:0;
-			fv.label=(val==1)?evoLang.yes:evoLang.no;
+			fv.label=(val==1)?i18n.yes:i18n.no;
 			fv.value=val;
+		}else if(this._type==fTypes.listOpts){
+			op.label=i18n.sEqual;
+			op.value=evoAPI.sEqual;
+			var sel = v.find('input:checked');
+			fv.label = sel.parent().text();
+			fv.value = sel.prop('id').slice(5);
+		}else if(this._type==fTypes.listDropdown){
+			op.label=i18n.sEqual;
+			op.value=evoAPI.sEqual;
+			var vval=v.val();
+			fv.label = vval?v.find('option[value='+vval+']').text():i18n.sIsNull;
+			fv.value = v.val();
 		}else{
 			var o=e.find('#operator'),
 				opVal=o.val();
@@ -553,13 +593,14 @@ $.widget( 'evol.structFilter', {
 	},
 
 	val: function(value){
+		// - sets or returns filter object
 		if (typeof value=='undefined'){
 		// --- get value
-			var v=[];
+			var ret=[];
 			this._filters.find('a').each(function(){
-				v.push($(this).data('filter'));
+				ret.push($(this).data('filter'));
 			});
-			return v;
+			return ret;
 		}else{
 		// --- set value
 			this._filters.empty();
@@ -572,28 +613,30 @@ $.widget( 'evol.structFilter', {
 	},
 
 	valText: function(){
-		var v=[];
+		// - returns filter "text" value as displayed to the user.
+		var ret=[];
 		this._filters.find('a').each(function(){
-			v.push(this.text);
+			ret.push(this.text);
 		});
-		return v.join(' '+evoLang.opAnd+' ');
+		return ret.join(' '+i18n.opAnd+' ');
 	},
 
 	valUrl: function(){
+		// - returns filter url
 		var vs=this.val(),
 			iMax=vs.length,
 			url='filters='+iMax;
-		if(iMax<1)
+		if(iMax<1){
 			return '';
-		for(var i=0;i<iMax;i++){
-			var v=vs[i];
-			url+='&field-'+i+'='+v.field.value+
-				'&operator-'+i+'='+v.operator.value+
-				'&value-'+i+'='+encodeURIComponent(v.value.value);
-			if(v.operator.value==evoAPI.sBetween){
-				url+='&value2-'+i+'='+encodeURIComponent(v.value.value2);
-			}
 		}
+		vs.forEach(function(v, idx){
+			url+='&field-'+idx+'='+v.field.value+
+				'&operator-'+idx+'='+v.operator.value+
+				'&value-'+idx+'='+encodeURIComponent(v.value.value);
+			if(v.operator.value==evoAPI.sBetween){
+				url+='&value2-'+idx+'='+encodeURIComponent(v.value.value2);
+			}
+		});
 		url+='&label='+encodeURIComponent(this.valText());
 		return url;
 	},
@@ -620,6 +663,7 @@ $.widget( 'evol.structFilter', {
 
 });
 
+// - helpers to generate HTML
 var EvoUI={
 
 	inputRadio:function(fN,fV,fLbl,sel,fID){
@@ -628,20 +672,22 @@ var EvoUI={
 			(sel?'" checked="checked':'')+
 			'">'+fLbl+'</label>&nbsp;';
 	},
+
 	inputHidden:function(id,val){
 		return '<input type="hidden" name="'+id+'" value="'+val+'"/>';
 	},
+
 	inputOption:function(fID,fV){
 		return '<option value="'+fID+'">'+fV+'</option>';
 	},
+
+	optNull:'<option value=""></option>',
+
 	inputCheckboxes:function(fLOV){
-		var h='';
-		for(var i=0;i<fLOV.length;i++){
-			var lv=fLOV[i];
-			h+='<input type="checkbox" id="'+lv.id+'" value="'+lv.id+'"/>'+
+		return fLOV.map(function(lv){
+			return '<input type="checkbox" id="'+lv.id+'" value="'+lv.id+'"/>'+
 				'<label for="'+lv.id+'">'+lv.label+'</label> ';
-		}
-		return h;
+		}).join('');
 	}
 
 };
