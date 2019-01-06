@@ -1,7 +1,7 @@
 ﻿/*!
- * structured-filter 2.0
+ * structured-filter 2.0.1
  *
- * (c) 2018 Olivier Giulieri
+ * (c) 2019 Olivier Giulieri
  *
  * https://github.com/evoluteur/structured-filter
  *
@@ -666,6 +666,15 @@ $.widget( 'evol.structFilter', {
 		this._editor.off();
 		e.clear().removeClass('structFilter ui-widget-content ui-corner-all');
 		$.Widget.prototype.destroy.call(this);
+	}
+
+});
+
+$.widget( 'evol.seti18n', {
+	options: {
+	},
+	_create: function(){
+		i18n = this.options;
 	}
 
 });
