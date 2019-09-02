@@ -1,5 +1,5 @@
 ﻿/*!
- * structured-filter 2.0.2
+ * structured-filter 2.0.3
  *
  * (c) 2019 Olivier Giulieri
  *
@@ -670,7 +670,8 @@ $.widget( 'evol.structFilter', {
 		var e=this.element.off();
 		e.find('.evo-bNew,.evo-bAdd,.evo-bDel,.evo-searchFilters').off();
 		this._editor.off();
-		e.clear().removeClass('structFilter ui-widget-content ui-corner-all');
+		this.clear();
+		e.empty().removeClass('structFilter ui-widget-content ui-corner-all');
 		$.Widget.prototype.destroy.call(this);
 	}
 
